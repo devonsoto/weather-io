@@ -1,38 +1,28 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
 import './App.css'
-import LocationInput from './components/locationInput'
 import Header from './features/Header'
+import { LocationTimeInputs } from './features/LocationTimeInputs'
+import { AppProvider } from '@/context/AppContext'
+// import { PastGraph } from './features/pastGraph'
+import { WeatherInfo } from './features/WeatherInfo'
 
 function App() {
   // const [count, setCount] = useState(0)
 
   return (
-    <>
+    <AppProvider>
       <Header />
-      <LocationInput />
-      {/* <div>
-        <a href='https://vitejs.dev' target='_blank'>
-          <img src={viteLogo} className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://react.dev' target='_blank'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p> */}
-    </>
+      <main
+        className='flex-1 flex flex-col items-center mt-10 
+      sm:p-12'
+      >
+        {/* <main> */}
+        <LocationTimeInputs />
+        <WeatherInfo />
+        {/* <PastGraph /> */}
+        {/* <TimeDropdown />
+        <LocationInput /> */}
+      </main>
+    </AppProvider>
   )
 }
 

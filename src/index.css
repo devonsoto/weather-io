@@ -3,6 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 24px !important; /* Needed because for some reason the dropdown was deleting the padding */
+    margin: 0;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+}
+
+@layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -72,9 +88,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    margin: 0;
-    display: flex;
-    min-height: 100vh;
-    min-width: 320px;
   }
 }
