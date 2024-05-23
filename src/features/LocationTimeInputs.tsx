@@ -45,6 +45,8 @@ export const LocationTimeInputs = () => {
     fetchWeatherData()
   }, [nextDates, selectedTime, selectedDay, location, setWeatherData])
 
+  const displayWarning = !selectedDay || !selectedTime
+
   return (
     <>
       <div className='justify-between flex-col sm:flex-row space-y-5 sm:space-y-0 items-center flex '>
@@ -62,6 +64,11 @@ export const LocationTimeInputs = () => {
         </div>
       </div>
       <div className=' w-full border-b-2 border-black'></div>
+      {displayWarning && (
+        <div className='flex h-full w-full flex-1 bg-slate-300/90 m-12 justify-center items-center'>
+          Select a Weekday and Time to see the weather
+        </div>
+      )}
     </>
   )
 }

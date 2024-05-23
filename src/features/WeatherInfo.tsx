@@ -1,102 +1,95 @@
-import { useAppContext, WeatherData } from '@/context/AppContext'
-import { SunIcon, CloudIcon } from '@heroicons/react/24/outline'
-const getCurrentWeather = (weatherData: WeatherData) => {
-  const currentWeather = weatherData.days[0]
-  const { temp, conditions, windspeed, precip } = currentWeather
+import { useAppContext } from '@/context/AppContext'
+import { InfographicWeatherDisplay } from '@/components/InfographicWeatherDisplay'
 
-  return { temp, conditions, windspeed, precip }
-}
+import { getCurrentWeather, getFollowingDayWeather } from '@/lib/weather'
+import { useEffect, useState } from 'react'
+import { GraphData, Graph } from '../components/Graph'
 
-const getFollowingDayWeather = (weatherData: WeatherData) => {
-  const days = weatherData.days
-  const nextWeekData = days[days.length - 1]
-
-  return nextWeekData
-}
-
-const getIcon = (conditions: string) => {
-  if (conditions.includes('cloud')) {
-    return <CloudIcon className='size-20' />
-  }
-  return <SunIcon className='size-20' />
-}
-
-const DisplayWeather = ({
-  conditions,
-  temp,
-  windspeed,
-  precip,
-}: {
+interface WeahterInfo {
   conditions: string
   temp: number
   windspeed: number
   precip: number
-}) => {
-  const Icon = getIcon(conditions)
+}
 
-  return (
-    <div className='flex space-x-2 text-black text-sm items-center'>
-      {Icon}
-      <div className='flex flex-col'>
-        <div className='flex space-x-2 font-bold'>
-          <p>{conditions}</p>
-          <p>{temp}°F</p>
-        </div>
-        <p>
-          Windspeed <span className='font-semibold'>{windspeed}mph</span>
-        </p>
-        <p>
-          Chance of rain: <span className='font-semibold'>{precip}</span>
-        </p>
-      </div>
-    </div>
-  )
+const convertToInterval = (time: string) => {
+  if (time === 'Morning') {
+    return { start: '8:00', end: '12:00' }
+  } else if (time === 'Afternoon') {
+    return { start: '12:00', end: '17:00' }
+  } else {
+    return { start: '17:00', end: '21:00' }
+  }
 }
 
 export const WeatherInfo = () => {
-  const { weatherData } = useAppContext()
+  const { weatherData, selectedTime } = useAppContext()
+  const [currentWeather, setCurrentWeather] = useState<WeahterInfo>()
+  const [nextWeekWeather, setNextWeekWeather] = useState<WeahterInfo>()
+  const [currentDataGraph, setCurrentDataGraph] = useState<GraphData>()
+  const [nextWeekDataGraph, setNextWeekDataGraph] = useState<GraphData>()
+  const [interval, setInterval] = useState<{
+    start: string
+    end: string
+  } | null>(null)
 
-  if (!weatherData) {
-    return (
-      <div className='flex h-full w-full flex-1 bg-slate-300/90 m-12 justify-center items-center'>
-        Select a Weekday and Time to see the weather
-      </div>
-    )
-  }
+  console.log('interval', interval)
+  useEffect(() => {
+    if (!weatherData || !selectedTime) return
+    const currentWeath = getCurrentWeather(weatherData)
+    setCurrentWeather(currentWeath)
+    const nextWeekWeather = getFollowingDayWeather(weatherData)
+    setNextWeekWeather(nextWeekWeather)
 
-  const info = getCurrentWeather(weatherData)
-  const nextWeekData = getFollowingDayWeather(weatherData)
+    const currentHoursData = weatherData.days[0].hours
+    const graphData = {
+      temp: currentHoursData.map((hour) => hour.temp),
+      precip: currentHoursData.map((hour) => hour.precip),
+      windspeed: currentHoursData.map((hour) => hour.windspeed),
+    }
+    setCurrentDataGraph(graphData)
+
+    const nextHoursData = nextWeekWeather.hours
+    const nextData = {
+      temp: nextHoursData.map((hour) => hour.temp),
+      precip: nextHoursData.map((hour) => hour.precip),
+      windspeed: nextHoursData.map((hour) => hour.windspeed),
+    }
+    setNextWeekDataGraph(nextData)
+
+    const interval = convertToInterval(selectedTime)
+    setInterval(interval)
+  }, [weatherData, selectedTime])
 
   return (
-    <>
-      {weatherData ? (
-        <div className='flex justify-between w-full p-9'>
-          <DisplayWeather
-            conditions={info.conditions}
-            temp={info.temp}
-            windspeed={info.windspeed}
-            precip={info.precip}
+    <div className='flex flex-1 flex-col sm:flex-row justify-between w-full p-9'>
+      <div className='w-full sm:w-1/2 p-4'>
+        {currentWeather && (
+          <InfographicWeatherDisplay
+            conditions={currentWeather.conditions}
+            temp={currentWeather.temp}
+            windspeed={currentWeather.windspeed}
+            precip={currentWeather.precip}
           />
-          {/* <div className='flex space-x-2 text-black text-sm items-center'>
-            <SunIcon className='size-20' />
-            <div className='flex flex-col'>
-              <div className='flex space-x-2'>
-                <p>{info.conditions}</p>
-                <p>{info.temp}°F</p>
-              </div>
-              <p>winds {info.windspeed}mph</p>
-            </div>
-          </div> */}
-          <DisplayWeather
-            conditions={nextWeekData.conditions}
-            temp={nextWeekData.temp}
-            windspeed={nextWeekData.windspeed}
-            precip={nextWeekData.precip}
+        )}
+        {currentDataGraph && interval && (
+          <Graph data={currentDataGraph} interval={interval} />
+        )}
+      </div>
+
+      <div className='w-full sm:w-1/2 p-4'>
+        {nextWeekWeather && interval && (
+          <InfographicWeatherDisplay
+            conditions={nextWeekWeather.conditions}
+            temp={nextWeekWeather.temp}
+            windspeed={nextWeekWeather.windspeed}
+            precip={nextWeekWeather.precip}
           />
-        </div>
-      ) : (
-        <div>test</div>
-      )}
-    </>
+        )}
+        {nextWeekDataGraph && interval && (
+          <Graph data={nextWeekDataGraph} interval={interval} />
+        )}
+      </div>
+    </div>
   )
 }
