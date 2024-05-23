@@ -85,7 +85,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const handleDayChange = (day: string) => {
-    console.log('day', day)
     setSelectedDay(day)
   }
 

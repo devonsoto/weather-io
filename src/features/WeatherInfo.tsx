@@ -4,8 +4,9 @@ import { InfographicWeatherDisplay } from '@/components/InfographicWeatherDispla
 import { getCurrentWeather, getFollowingDayWeather } from '@/lib/weather'
 import { useEffect, useState } from 'react'
 import { GraphData, Graph } from '../components/Graph'
+import { Recommendation } from '@/components/Recommendation'
 
-interface WeahterInfo {
+export interface WeatherInfo {
   conditions: string
   temp: number
   windspeed: number
@@ -24,8 +25,8 @@ const convertToInterval = (time: string) => {
 
 export const WeatherInfo = () => {
   const { weatherData, selectedTime } = useAppContext()
-  const [currentWeather, setCurrentWeather] = useState<WeahterInfo>()
-  const [nextWeekWeather, setNextWeekWeather] = useState<WeahterInfo>()
+  const [currentWeather, setCurrentWeather] = useState<WeatherInfo>()
+  const [nextWeekWeather, setNextWeekWeather] = useState<WeatherInfo>()
   const [currentDataGraph, setCurrentDataGraph] = useState<GraphData>()
   const [nextWeekDataGraph, setNextWeekDataGraph] = useState<GraphData>()
   const [interval, setInterval] = useState<{
@@ -33,7 +34,6 @@ export const WeatherInfo = () => {
     end: string
   } | null>(null)
 
-  console.log('interval', interval)
   useEffect(() => {
     if (!weatherData || !selectedTime) return
     const currentWeath = getCurrentWeather(weatherData)
@@ -62,34 +62,42 @@ export const WeatherInfo = () => {
   }, [weatherData, selectedTime])
 
   return (
-    <div className='flex flex-1 flex-col sm:flex-row justify-between w-full p-9'>
-      <div className='w-full sm:w-1/2 p-4'>
-        {currentWeather && (
-          <InfographicWeatherDisplay
-            conditions={currentWeather.conditions}
-            temp={currentWeather.temp}
-            windspeed={currentWeather.windspeed}
-            precip={currentWeather.precip}
-          />
-        )}
-        {currentDataGraph && interval && (
-          <Graph data={currentDataGraph} interval={interval} />
-        )}
+    <div className='flex flex-col p-9 w-full'>
+      <div className='flex flex-1 flex-col sm:flex-row justify-between w-full p-9'>
+        <div className='w-full sm:w-1/2 p-4'>
+          {currentWeather && (
+            <InfographicWeatherDisplay
+              conditions={currentWeather.conditions}
+              temp={currentWeather.temp}
+              windspeed={currentWeather.windspeed}
+              precip={currentWeather.precip}
+            />
+          )}
+          {currentDataGraph && interval && (
+            <Graph data={currentDataGraph} interval={interval} />
+          )}
+        </div>
+
+        <div className='w-full sm:w-1/2 p-4'>
+          {nextWeekWeather && interval && (
+            <InfographicWeatherDisplay
+              conditions={nextWeekWeather.conditions}
+              temp={nextWeekWeather.temp}
+              windspeed={nextWeekWeather.windspeed}
+              precip={nextWeekWeather.precip}
+            />
+          )}
+          {nextWeekDataGraph && interval && (
+            <Graph data={nextWeekDataGraph} interval={interval} />
+          )}
+        </div>
       </div>
 
-      <div className='w-full sm:w-1/2 p-4'>
-        {nextWeekWeather && interval && (
-          <InfographicWeatherDisplay
-            conditions={nextWeekWeather.conditions}
-            temp={nextWeekWeather.temp}
-            windspeed={nextWeekWeather.windspeed}
-            precip={nextWeekWeather.precip}
-          />
-        )}
-        {nextWeekDataGraph && interval && (
-          <Graph data={nextWeekDataGraph} interval={interval} />
-        )}
-      </div>
+      {currentWeather && nextWeekWeather && (
+        <div>
+          <Recommendation data1={currentWeather} data2={nextWeekWeather} />
+        </div>
+      )}
     </div>
   )
 }

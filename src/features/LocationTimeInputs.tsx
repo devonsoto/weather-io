@@ -22,7 +22,6 @@ export const LocationTimeInputs = () => {
     if (selectedDay) {
       const dates = getNextTwoDatesForDay(selectedDay)
       setNextDates(dates)
-      console.log('dates', dates)
     }
   }, [selectedDay])
 
@@ -35,7 +34,6 @@ export const LocationTimeInputs = () => {
           const response = await fetch(url)
           const data = await response.json()
           setWeatherData(data)
-          console.log('weatherData', data)
         } catch (error) {
           console.error('Failed to fetch weather data:', error)
         }
